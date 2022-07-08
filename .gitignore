@@ -10,6 +10,8 @@
 
 # production
 /build
+# Mockups
+/mockups
 
 # misc
 .DS_Store
