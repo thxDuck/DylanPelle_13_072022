@@ -1,9 +1,12 @@
 import React from "react";
+import Banner from "../components/partials/Banner.jsx";
+import FeatureContainer from "../components/partials/FeatureContainer.jsx";
 
 const Home = () => {
     return (
         <main>
-            <h1>Hello Argent bank !</h1>
+            <Banner />
+            <FeatureContainer />
         </main>
     );
 };

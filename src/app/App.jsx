@@ -8,11 +8,9 @@ import "../styles/style.css";
 const App = () => {
     return (
         <BrowserRouter>
-            <div className="main">
-                <Header />
-                <RoutesApp />
-                <Footer />
-            </div>
+            <Header />
+            <RoutesApp />
+            <Footer />
         </BrowserRouter>
     );
 };
