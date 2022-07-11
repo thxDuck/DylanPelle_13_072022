@@ -6,7 +6,7 @@ html {
     color: #2c3e50;
 }
 
-#root {
+body, #root {
     margin: 0;
     display: flex;
     flex-direction: column;
@@ -291,4 +291,31 @@ html {
     .transaction-button {
         width: 200px;
     }
+}
+
+#editProfile {
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+
+    /* align-items: center; */
+    /* justify-content: center; */
+    gap: 15px;
+}
+#editProfile .input-group {
+    display: flex;
+    /* justify-content: center; */
+    margin: auto;
+    gap: 15px;
+}
+#editProfile .input-group input {
+    height: 3rem;
+
+}
+#editProfile .btn-group {
+    display: flex;
+    /* justify-content: center; */
+    margin: auto;
+    gap: 15px;
+
 }
