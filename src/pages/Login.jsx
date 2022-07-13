@@ -1,5 +1,5 @@
 import React from 'react'
-import LoginForm from "../components/partials/loginForm.jsx";
+import LoginForm from "../components/partials/LoginForm.jsx";
 
 const Login = () => {
     return (

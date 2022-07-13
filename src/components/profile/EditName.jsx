@@ -1,6 +1,7 @@
 import React from 'react'
 
-// TODO : Créer plustot deux elements, un gauche et un droit 
+// TODO : Diviser le formulaire en deux parties ?
+
 const EditName = (props) => {
     const { firstName, lastName } = props;
     return (

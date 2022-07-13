@@ -1,7 +1,6 @@
 import React from 'react'
 
-// TODO : Diviser le formulaire en deux parties ?
-const loginForm = () => {
+const LoginForm = () => {
     return (
         <form>
             <div className="input-wrapper">
@@ -21,4 +20,4 @@ const loginForm = () => {
     )
 }
 
-export default loginForm;
+export default LoginForm;
