@@ -6,7 +6,8 @@ html {
     color: #2c3e50;
 }
 
-body {
+body,
+#root {
     margin: 0;
     display: flex;
     flex-direction: column;
@@ -54,6 +55,9 @@ body {
 .main-nav-item {
     text-decoration: none;
     margin-right: 0.5rem;
+}
+.main-nav-item i {
+    margin-right: 5px;
 }
 
 .main-nav-item:hover {
@@ -287,5 +291,70 @@ body {
 
     .transaction-button {
         width: 200px;
+    }
+}
+
+#editProfile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+    height: auto;
+
+    padding: 2rem 1rem;
+}
+
+#editProfile input {
+    width: 15rem;
+    height: 2rem;
+    font-size: 1.15rem;
+}
+#editProfile button {
+    width: 7rem;
+
+    cursor: pointer;
+    color: #00bc77;
+    background-color: #fff;
+    transition: all 0.3s ease-in-out;
+}
+#editProfile button:hover {
+    background-color: #00bc77;
+    color: #fff;
+}
+
+#editProfile input:first-child {
+    margin-right: 1.5rem;
+}
+#editProfile button:last-child {
+    margin-left: 1.5rem;
+}
+@media (max-width: 720px) {
+    #editProfile {
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        /* gap: 15px; */
+        width: 80%;
+        padding: 1rem;
+        height: auto;
+        margin: auto;
+    }
+
+    #editProfile div {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    #editProfile div:first-child {
+        align-items: flex-end;
+    }
+    #editProfile button,
+    #editProfile input {
+        margin: 0 !important;
+        width: 8rem;
+    }
+    #editProfile button {
+        transform: scale(0.9);
     }
 }
