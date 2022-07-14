@@ -1,6 +1,6 @@
 import React from "react";
 import Banner from "../components/partials/Banner.jsx";
-import FeatureContainer from "../components/partials/FeatureContainer.jsx";
+import FeatureContainer from "../components/home/FeatureContainer.jsx";
 
 const Home = () => {
     return (

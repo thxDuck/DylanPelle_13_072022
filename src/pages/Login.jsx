@@ -1,5 +1,5 @@
-import React from 'react'
-import LoginForm from "../components/partials/LoginForm.jsx";
+import React from "react";
+import LoginForm from "../components/login/LoginForm.jsx";
 
 const Login = () => {
     return (
@@ -9,10 +9,9 @@ const Login = () => {
                 <h1>Sign In</h1>
 
                 <LoginForm />
-
             </section>
         </main>
-    )
-}
+    );
+};
 
-export default Login
+export default Login;
