@@ -9,8 +9,8 @@ const HeaderProfile = () => {
                 <br />
                 Tony Jarvis!
             </h1>
-            {/* <EditName firstName="Tony" lastName="Jarvis" /> */}
-            <button className="edit-button">Edit Name</button>
+            <EditName firstName="Tony" lastName="Jarvis" />
+            {/* <button className="edit-button">Edit Name</button> */}
         </div>
     );
 };
