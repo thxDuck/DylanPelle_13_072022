@@ -3,29 +3,18 @@ import { selectUserStatus } from "../utils/selectors";
 import { login } from "../utils/services";
 
 const initialState = {
-	data: {
+	user: {
 		id: 0,
 		firstName: "",
 		lastName: "",
+		token: "",
 		accountIds: [],
 	},
 	// Satus can be "void", "pending", "connected";
 	status: "void",
 };
 
-// FIXME Ici j'ai des soucis syncrones ! :'(
 
-const getToken = async (email, password) => {
-    return await login(email, password)
-    .then((token) => {
-        console.log("Happy ending ! => ", token);
-        console.log("\n")
-        // TODO : connect user, handle keepLegged
-    })
-    .catch(error => {
-        console.log('error , ', error)
-    });
-}
 export function loginUser(email, password, keepLogged) {
 	return async (dispatch, getState) => {
 		const status = selectUserStatus(getState()).status;
@@ -35,19 +24,13 @@ export function loginUser(email, password, keepLogged) {
 		dispatch(actions.checkCredentials(email, password, keepLogged));
 		try {
 			console.log("1 - Send login !");
-          const token = await getToken(email, password)
-			// await login(email, password)
-            // .then((token) => {
-			// 	console.log("Happy ending ! => ", token);
-            //     console.log("\n")
-			// 	return token;
-            //     // TODO : connect user, handle keepLegged
-			// })
-            // .catch(error => {
-            //     console.log('error , ', error)
-            // });
+			// FIXME Ici j'ai des soucis de passage d'erreur/résultats, VOIR la modification du payload dans le reducer ! :/
+			const token = await login(email, password);
 			dispatch(actions.resolved(token));
 		} catch (error) {
+			console.log('CATCH');
+			console.log('error => ', error);
+			
 			dispatch(actions.rejected(error));
 		}
 	};
@@ -78,13 +61,13 @@ const userSlice = createSlice({
 		},
 		resolved: {
 			// prepare permet de modifier le payload
-			prepare: (freelanceId, data) => ({
-				payload: { freelanceId, data },
+			prepare: (token) => ({
+				payload: { token:token },
 			}),
 			// la fonction de reducer
 			reducer: (draft, action) => {
 				if (draft.status === "pending" || draft.status === "updating") {
-					draft.data = action.payload.data;
+					draft.user.token = action.payload.token;
 					draft.status = "resolved";
 					return;
 				}
@@ -92,8 +75,8 @@ const userSlice = createSlice({
 			},
 		},
 		rejected: {
-			prepare: (freelanceId, error) => ({
-				payload: { freelanceId, error },
+			prepare: (error) => ({
+				payload: { error },
 			}),
 			reducer: (draft, action) => {
 				if (draft.status === "pending" || draft.status === "updating") {
