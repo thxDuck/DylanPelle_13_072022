@@ -1,7 +1,8 @@
 import React from "react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import * as userActions from "../../features/user";
+import * as userActions from "../../features/authentication";
+import { selectAuthenticationStatus, selectAuthenticationError } from "../../utils/selectors";
 
 const LoginForm = () => {
 	const dispatch = useDispatch();
@@ -10,10 +11,13 @@ const LoginForm = () => {
 		password: "",
 		keepLogged: false,
 	});
+
 	const handleInputChange = (event) => {
 		const target = event.target;
 		const value =
-			target.type === "checkbox" ? target.checked : target.value;
+			target.type === "checkbox"
+				? target.checked
+				: target.value.toLowerCase().trim();
 		const inputName = target.name;
 		userCredentials[inputName] = value;
 		setUserCredentials({ ...userCredentials, [inputName]: value });
@@ -22,10 +26,24 @@ const LoginForm = () => {
 	const handleSumbmit = (event) => {
 		event.preventDefault();
 		console.log("Final userForm => ", userCredentials);
-		dispatch(userActions.loginUser(userCredentials.email, userCredentials.password, userCredentials.keepLogged));
+		dispatch(
+			userActions.checkCredentials(
+				userCredentials.email,
+				userCredentials.password,
+				userCredentials.keepLogged
+			)
+		);
 	};
+
+	const status = useSelector(selectAuthenticationStatus);
+	const error = useSelector(selectAuthenticationError);
 	return (
-		<form onSubmit={handleSumbmit}>
+		<form onSubmit={handleSumbmit} >
+			<div className="input-wrapper">
+				{status === "rejected" && (
+					<p className="message-error"></p>
+				)}
+			</div>
 			<div className="input-wrapper">
 				<label htmlFor="email">Username</label>
 				<input

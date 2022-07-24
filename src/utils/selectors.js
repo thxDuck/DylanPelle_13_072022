@@ -1,1 +1,2 @@
-export const selectUserStatus = (state) => state.user.status
+export const selectAuthenticationStatus = (state) => state.authentication.status;
+export const selectAuthenticationError = (state) => state.authentication.error;

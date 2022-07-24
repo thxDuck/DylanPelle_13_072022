@@ -1,41 +1,31 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { selectUserStatus } from "../utils/selectors";
+import { selectAuthenticationStatus } from "../utils/selectors";
 import { login } from "../utils/services";
 
 const initialState = {
-	user: {
-		id: 0,
-		firstName: "",
-		lastName: "",
-		token: "",
-		accountIds: [],
-	},
-	// Satus can be "void", "pending", "connected";
 	status: "void",
+	error: false,
+	token: "",
 };
 
-
-export function loginUser(email, password, keepLogged) {
+export function checkCredentials(email, password, keepLogged) {
 	return async (dispatch, getState) => {
-		const status = selectUserStatus(getState()).status;
+		const status = selectAuthenticationStatus(getState()).status;
 		if (status === "pending" || status === "updating") {
 			return;
 		}
 		dispatch(actions.checkCredentials(email, password, keepLogged));
 		try {
-			console.log("1 - Send login !");
-			// FIXME Ici j'ai des soucis de passage d'erreur/résultats, VOIR la modification du payload dans le reducer ! :/
 			const token = await login(email, password);
-			dispatch(actions.resolved(token));
+			if (!!token) dispatch(actions.resolved(token));
+			else dispatch(actions.rejected());
+			return !!token;
 		} catch (error) {
-			console.log('CATCH');
-			console.log('error => ', error);
-			
 			dispatch(actions.rejected(error));
 		}
 	};
 }
-const userSlice = createSlice({
+const authenticationSlice = createSlice({
 	name: "user",
 	initialState: initialState,
 	reducers: {
@@ -62,12 +52,12 @@ const userSlice = createSlice({
 		resolved: {
 			// prepare permet de modifier le payload
 			prepare: (token) => ({
-				payload: { token:token },
+				payload: { token: token },
 			}),
 			// la fonction de reducer
 			reducer: (draft, action) => {
 				if (draft.status === "pending" || draft.status === "updating") {
-					draft.user.token = action.payload.token;
+					draft.authentication.token = action.payload.token;
 					draft.status = "resolved";
 					return;
 				}
@@ -75,13 +65,10 @@ const userSlice = createSlice({
 			},
 		},
 		rejected: {
-			prepare: (error) => ({
-				payload: { error },
-			}),
 			reducer: (draft, action) => {
 				if (draft.status === "pending" || draft.status === "updating") {
-					draft.error = action.payload.error;
-					draft.data = null;
+					draft.token = "";
+					draft.error = true;
 					draft.status = "rejected";
 					return;
 				}
@@ -92,7 +79,7 @@ const userSlice = createSlice({
 });
 
 // on extrait les actions et le reducer
-const { actions, reducer } = userSlice;
+const { actions, reducer } = authenticationSlice;
 // on export chaque action individuellement
 export const { editNames } = actions;
 // on export le reducer comme default export
