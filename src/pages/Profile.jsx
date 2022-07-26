@@ -1,40 +1,86 @@
-import React from 'react'
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 import HeaderProfile from "../components/profile/HeaderProfile.jsx";
 import AccountResume from "../components/profile/AccountResume.jsx";
+import * as accountActions from "../features/account";
+import {
+	selectUserData,
+	userIsConnected,
+	selectAccountsData,
+	selectAccountStatus,
+} from "../utils/selectors";
 
 const mockedAccounts = [
-    {
-        "id": 1,
-        "title": "Argent Bank Checking (x8349)",
-        "amount": "$2,082.79",
-        "amountDescription": "Available Balance"
-    },
-    {
-        "id": 2,
-        "title": "Argent Bank Savings (x6712)",
-        "amount": "$10,928.42",
-        "amountDescription": "Available Balance"
-    },
-    {
-        "id": 3,
-        "title": "Argent Bank Credit Card (x8349)",
-        "amount": "$184.30",
-        "amountDescription": "Current Balance"
-    },
-]
-
+	{
+		id: 1,
+		title: "",
+		amount: "",
+		amountDescription: "",
+		mock: true,
+	},
+	{
+		id: 2,
+		title: "",
+		amount: "",
+		amountDescription: "",
+		mock: true,
+	},
+	{
+		id: 3,
+		title: "",
+		amount: "",
+		amountDescription: "",
+		mock: true,
+	},
+];
 const Profile = () => {
-    return (
-        <main className="main bg-dark">
-            <HeaderProfile />
-            <h2 className="sr-only">Accounts</h2>
-            {mockedAccounts.map(acc => {
-                return <AccountResume key={acc.id} title={acc.title}
-                    amount={acc.amount}
-                    amountDescription={acc.amountDescription} />
-            })}
-        </main>
-    )
-}
+	const dispatch = useDispatch();
+	const user = useSelector(selectUserData);
+	const userId = document.cookie.userId
+	console.log({userId});
+	const isConnected = useSelector(userIsConnected);
 
-export default Profile
+	useEffect(() => {
+		console.log("in useEffect");
+		if (isConnected) {
+			dispatch(accountActions.fetchUserAccounts(userId));
+		}
+	}, [dispatch, isConnected, userId]);
+
+	const userAccounts = useSelector(selectAccountsData);
+	const accountStatus = useSelector(selectAccountStatus);
+
+	console.log("render");
+
+	return !isConnected || !user || !user.id ? (
+		<main className="main bg-dark">
+			<div className="unauthorized">
+				<p>You are not authenticated !</p>
+				<Link to="/login">Sign In</Link>
+			</div>
+		</main>
+	) : (
+		<main className="main bg-dark">
+			<HeaderProfile />
+			<h2 className="sr-only">Accounts</h2>
+			{accountStatus?.length > 0 ? (
+				userAccounts.map((acc) => {
+					return (
+						<AccountResume
+							key={acc.id}
+							title={acc.title}
+							amount={acc.amount}
+							amountDescription={acc.amountDescription}
+							mock={acc.mock}
+						/>
+					);
+				})
+			) : (
+				<p className="error">Hey ;'</p>
+			)}
+		</main>
+	);
+};
+
+export default Profile;

@@ -16,7 +16,7 @@ const HeaderProfile = () => {
 		<div>
 			<a className="main-nav-item" href="./profile">
 				<i className="fa fa-user-circle"></i>
-				{ user.lastName }
+				{ user.firstName }
 			</a>
 			<a className="main-nav-item" href="./" onClick={() => logout()}>
 				<i className="fa fa-sign-out"></i>

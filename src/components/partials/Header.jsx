@@ -2,11 +2,11 @@ import React from "react";
 import { useSelector } from "react-redux";
 import Login from "../partials/Login.jsx";
 import NavProfile from "./NavProfile.jsx";
-import { selectUserIsConnected, selectUserData } from "../../utils/selectors";
+import { userIsConnected, selectUserData } from "../../utils/selectors";
 import argentBankLogo from "../../assets/img/argentBankLogo.png";
 
 const Header = () => {
-	const userIsLogged = useSelector(selectUserIsConnected);
+	const userIsLogged = useSelector(userIsConnected);
 	const userData = useSelector(selectUserData);
 	console.log({ userData });
 	return (

@@ -10,15 +10,22 @@ const emptyUser = {
 	updatedAt: "",
 };
 const initialState = {
-	user: { ...emptyUser },
+	data: { ...emptyUser },
+	mode: null,
 	connected: false,
 	status: "void",
 	error: false,
 	token: "",
 	keepLogged: false,
 };
+export const setMode = (mode) => {
+	return (dispatch, getState) => {
+		console.log({ mode });
+		dispatch(actions.setMode(mode));
+	};
+};
 export const logout = () => {
-	return async (dispatch, getState) => {
+	return (dispatch, getState) => {
 		dispatch(actions.logout());
 	};
 };
@@ -35,6 +42,7 @@ export const login = (email, password, keepLogged) => {
 			await getProfile(token).then((response) => {
 				if (response.success) {
 					const user = response.user;
+					// TODO : Initialiser des cookies de connexion au rememberme
 					dispatch(actions.resolved(user, token, keepLogged));
 				} else {
 					const error = response.message || "Erreur de connexion.";
@@ -58,7 +66,6 @@ const userSlice = createSlice({
 			reducer: (draft, action) => {
 				if (draft.status === "void") {
 					draft.status = "pending";
-					draft.user = { ...emptyUser };
 					return;
 				}
 				if (draft.status === "rejected") {
@@ -79,7 +86,11 @@ const userSlice = createSlice({
 				payload: { user: user, token: token, keepLogged: keepLogged },
 			}),
 			reducer: (draft, action) => {
-				if (draft.status === "pending" || draft.status === "updating" || draft.status === "rejected") {
+				if (
+					draft.status === "pending" ||
+					draft.status === "updating" ||
+					draft.status === "rejected"
+				) {
 					draft.status = "resolved";
 					draft.data = { ...action.payload.user };
 					draft.keepLogged = action.payload.keepLogged;
@@ -90,6 +101,10 @@ const userSlice = createSlice({
 				}
 				return;
 			},
+		},
+		setMode: (draft, action) => {
+			draft.mode = action.payload;
+			return;
 		},
 		rejected: {
 			prepare: (errorMessage) => ({
@@ -109,7 +124,7 @@ const userSlice = createSlice({
 		logout: {
 			reducer: (draft, action) => {
 				draft.token = "";
-				draft.error = false
+				draft.error = false;
 				draft.status = "void";
 				draft.user = { ...emptyUser };
 				return;
