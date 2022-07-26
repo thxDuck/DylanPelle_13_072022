@@ -169,6 +169,12 @@ body,
 	color: #fff;
 	cursor: pointer;
 }
+.btn-pending {
+	background-color: #004a2f;
+	border-color: #004a2f;
+	color: #ffffff60;
+	cursor: progress;
+}
 
 .sign-in-content {
 	box-sizing: border-box;
@@ -364,6 +370,13 @@ body,
 	font-weight: bold;
 	color: red;
 	border: 1px solid red;
+	padding: 1rem;
+	text-align: center;
+}
+.message-success {
+	font-weight: bold;
+	color: green;
+	border: 1px solid green;
 	padding: 1rem;
 	text-align: center;
 }
