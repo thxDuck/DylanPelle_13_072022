@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { selectUserStatus } from "../utils/selectors";
 import { getToken, getProfile } from "../utils/services";
+import * as Autentication from "../utils/autentication.js";
 
 const emptyUser = {
 	id: "",
@@ -8,6 +9,7 @@ const emptyUser = {
 	lastName: "",
 	email: "",
 	updatedAt: "",
+	accountIds: [],
 };
 const initialState = {
 	data: { ...emptyUser },
@@ -26,6 +28,7 @@ export const setMode = (mode) => {
 };
 export const logout = () => {
 	return (dispatch, getState) => {
+		// TODO : Détruire les tokens ainsi que les accounts
 		dispatch(actions.logout());
 	};
 };
@@ -35,22 +38,45 @@ export const login = (email, password, keepLogged) => {
 		if (status === "pending" || status === "updating") {
 			return;
 		}
-		dispatch(actions.checkCredentials(email, password, keepLogged));
+		dispatch(actions.checkCredentials());
+		/* 
+		TODO : Séparer en deux fonction pour ici, 
+		  	- Vérifier la présence d'un token, 
+				- et si oui, on getProfile directement sans passer par getToken
+				- Si non, on getToken
+
+		*/
 		const response = await getToken(email, password);
 		if (response.success) {
 			const token = response.token;
 			await getProfile(token).then((response) => {
 				if (response.success) {
 					const user = response.user;
-					// TODO : Initialiser des cookies de connexion au rememberme
+					const { newToken, secret } = Autentication.createLoginToken(token);
+					const storage = keepLogged ? localStorage : sessionStorage;
+					storage.token = newToken;
+					document.cookie = `sId=${secret};`;
+					console.log({ newToken, secret });
+
+					// localStorage.setItem('token', "xxx")
+					// localStorage.getItem('token')
+					// sessionStorage.setItem('token', "xxx");
+					// sessionStorage.getItem('token')
+					/*
+						- Créer un secret
+						1 - Décomposer le token, le hasher, le sauvegarder,
+						2 - on recompose et on récupere ça (on peut associer l'id de connexion a l'user)
+
+					*/
+
 					dispatch(actions.resolved(user, token, keepLogged));
 				} else {
-					const error = response.message || "Erreur de connexion.";
+					const error = response.message || "Connection error.";
 					dispatch(actions.rejected(error));
 				}
 			});
 		} else {
-			const error = response.message || "Erreur de connexion.";
+			const error = response.message || "Connection error.";
 			dispatch(actions.rejected(error));
 		}
 	};
@@ -60,9 +86,6 @@ const userSlice = createSlice({
 	initialState: initialState,
 	reducers: {
 		checkCredentials: {
-			prepare: (userName, password, keepLogged) => ({
-				payload: { userName, password, keepLogged },
-			}),
 			reducer: (draft, action) => {
 				if (draft.status === "void") {
 					draft.status = "pending";

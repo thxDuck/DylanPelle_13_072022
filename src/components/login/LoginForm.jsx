@@ -16,7 +16,8 @@ const LoginForm = () => {
 
 	const handleInputChange = (event) => {
 		const target = event.target;
-		const value = target.type === "checkbox" ? target.checked : target.value.toLowerCase().trim();
+		const value =
+			target.type === "checkbox" ? target.checked : target.value.toLowerCase().trim();
 		const inputName = target.name;
 		userCredentials[inputName] = value;
 		setUserCredentials({ ...userCredentials, [inputName]: value });
@@ -24,7 +25,13 @@ const LoginForm = () => {
 
 	const handleSumbmit = (event) => {
 		event.preventDefault();
-		dispatch(userActions.login(userCredentials.email, userCredentials.password, userCredentials.keepLogged));
+		dispatch(
+			userActions.login(
+				userCredentials.email,
+				userCredentials.password,
+				userCredentials.keepLogged
+			)
+		);
 	};
 
 	const error = useSelector(selectUserError);
@@ -34,24 +41,55 @@ const LoginForm = () => {
 			navigate("/profile");
 		}, 1000);
 	}
+	console.log("render");
 	return (
 		<form onSubmit={handleSumbmit}>
-			<div className="input-wrapper">{status === "rejected" && !!error && <p className="message-error">{error}</p>}</div>
-			<div className="input-wrapper">{status === "resolved" && !error && <p className="message-success">Bienvenue !</p>}</div>
+			<div className="input-wrapper">
+				{status === "rejected" && !!error && <p className="message-error">{error}</p>}
+			</div>
+			<div className="input-wrapper">
+				{status === "resolved" && !error && <p className="message-success">Bienvenue !</p>}
+			</div>
 			<div className="input-wrapper">
 				<label htmlFor="email">Username</label>
-				<input id="email" type="text" name="email" value={userCredentials.email} onChange={handleInputChange} />
+				<input
+					id="email"
+					type="text"
+					name="email"
+					value={userCredentials.email}
+					onChange={handleInputChange}
+				/>
 			</div>
 			<div className="input-wrapper">
 				<label htmlFor="password">Password</label>
-				<input id="password" type="password" name="password" value={userCredentials.password} onChange={handleInputChange} />
+				<input
+					id="password"
+					type="password"
+					name="password"
+					value={userCredentials.password}
+					onChange={handleInputChange}
+				/>
 			</div>
 			<div className="input-remember">
-				<input type="checkbox" id="remember-me" name="keepLogged" onChange={handleInputChange} />
+				<input
+					type="checkbox"
+					id="remember-me"
+					name="keepLogged"
+					onChange={handleInputChange}
+				/>
 				<label htmlFor="remember-me">Remember me</label>
 			</div>
 
-			{status === "pending" ? <input className="sign-in-button btn-pending" type="submit" value="Waiting" disabled={true} /> : <input className="sign-in-button" type="submit" value="Sign In" />}
+			{status === "pending" ? (
+				<input
+					className="sign-in-button btn-pending"
+					type="submit"
+					value="Waiting"
+					disabled={true}
+				/>
+			) : (
+				<input className="sign-in-button" type="submit" value="Sign In" />
+			)}
 		</form>
 	);
 };

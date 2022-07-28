@@ -37,14 +37,19 @@ const mockedAccounts = [
 const Profile = () => {
 	const dispatch = useDispatch();
 	const user = useSelector(selectUserData);
-	const userId = document.cookie.userId
-	console.log({userId});
+	const userId = user.id;
+	// const userId = document.cookie.userId
+	// console.log({userId});
 	const isConnected = useSelector(userIsConnected);
 
 	useEffect(() => {
-		console.log("in useEffect");
 		if (isConnected) {
 			dispatch(accountActions.fetchUserAccounts(userId));
+		} else if (!!localStorage) {
+			// recherche du token
+				// => /login
+		} else {
+			// reconnectez vous
 		}
 	}, [dispatch, isConnected, userId]);
 
