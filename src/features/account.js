@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { selectAccountStatus, selectUserData, selectUserId } from "../utils/selectors";
+import {checkLogin} from "./user";
 
 const mockedAccounts = [
 	{
@@ -50,17 +51,17 @@ const initialState = {
 export const fetchUserAccounts = () => {
 	return async (dispatch, getState) => {
 		const status = getState().accounts.status;
+		if (status === "resolved" ||status === "pending" || status === "updating") return;
 		const userId = getState().user.data.id;
-		console.log({ status, userId });
-
-		if (status === "resolved" ||status === "pending" || status === "updating") {
-			return;
+		console.log("   fetchUserAccounts: ", userId);
+		if (!userId) {
+			// await checkLogin().then((user) => console.log("		checkLogin result",{user}));
 		}
 
-		dispatch(actions.fetchAccounts());
-		setTimeout(() => {
-			dispatch(actions.resolved(mockedAccountsV2));
-		}, 2000);
+		// dispatch(actions.fetchAccounts());
+		// setTimeout(() => {
+		// 	dispatch(actions.resolved(mockedAccountsV2));
+		// }, 2000);
 	};
 };
 const accountSlice = createSlice({

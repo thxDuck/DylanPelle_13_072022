@@ -49,7 +49,8 @@ const getAuthenticateHeaders = (token) => {
 	};
 };
 
-export const getProfile = async (token) => {
+export const fetchProfile = async (token) => {
+	console.log("FETCH PROFILE => ",{ token });
 	const options = {
 		method: "POST",
 		headers: getAuthenticateHeaders(token),

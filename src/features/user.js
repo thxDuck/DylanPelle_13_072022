@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { selectUserStatus } from "../utils/selectors";
-import { getToken, getProfile } from "../utils/services";
+import { getToken, fetchProfile } from "../utils/services";
 import * as Autentication from "../utils/autentication.js";
 
 const emptyUser = {
@@ -29,52 +29,51 @@ export const setMode = (mode) => {
 export const logout = () => {
 	return (dispatch, getState) => {
 		// TODO : Détruire les tokens ainsi que les accounts
+		// TODO : Effacer aussi le keepLogged de localStorage
 		dispatch(actions.logout());
 	};
 };
-export const login = (email, password, keepLogged) => {
-	return async (dispatch, getState) => {
+
+export const checkLogin = () => {
+	return (dispatch, getState) => {
 		const status = selectUserStatus(getState()).status;
 		if (status === "pending" || status === "updating") {
 			return;
 		}
-		dispatch(actions.checkCredentials());
-		/* 
-		TODO : Séparer en deux fonction pour ici, 
-		  	- Vérifier la présence d'un token, 
-				- et si oui, on getProfile directement sans passer par getToken
-				- Si non, on getToken
+		const { token, keepLogged } = Autentication.getSavedLoginInformations();
+		if (!token) {
+			dispatch(actions.rejected());
+			return;
+		}
+		console.log("checkLogin: ", { token: token });
+		getProfile(dispatch, token, keepLogged);
+	};
+};
 
-		*/
+const getProfile = async (dispatch, token, keepLogged) => {
+	await fetchProfile(token).then((response) => {
+		if (response.success) {
+			const user = response.user;
+			const { newToken, secret } = Autentication.createLoginToken(token);
+			Autentication.setTokenInformations(newToken, secret, keepLogged);
+			dispatch(actions.resolved(user, token, keepLogged));
+		} else {
+			const error = response.message || "Connection error.";
+			dispatch(actions.rejected(error));
+		}
+	});
+};
+
+export const login = (email, password, keepLogged) => {
+	return async (dispatch, getState) => {
+		const status = selectUserStatus(getState()).status;
+		if (status === "pending" || status === "updating") return;
+
+		dispatch(actions.checkCredentials());
 		const response = await getToken(email, password);
 		if (response.success) {
 			const token = response.token;
-			await getProfile(token).then((response) => {
-				if (response.success) {
-					const user = response.user;
-					const { newToken, secret } = Autentication.createLoginToken(token);
-					const storage = keepLogged ? localStorage : sessionStorage;
-					storage.token = newToken;
-					document.cookie = `sId=${secret};`;
-					console.log({ newToken, secret });
-
-					// localStorage.setItem('token', "xxx")
-					// localStorage.getItem('token')
-					// sessionStorage.setItem('token', "xxx");
-					// sessionStorage.getItem('token')
-					/*
-						- Créer un secret
-						1 - Décomposer le token, le hasher, le sauvegarder,
-						2 - on recompose et on récupere ça (on peut associer l'id de connexion a l'user)
-
-					*/
-
-					dispatch(actions.resolved(user, token, keepLogged));
-				} else {
-					const error = response.message || "Connection error.";
-					dispatch(actions.rejected(error));
-				}
-			});
+			getProfile(dispatch, token, keepLogged);
 		} else {
 			const error = response.message || "Connection error.";
 			dispatch(actions.rejected(error));

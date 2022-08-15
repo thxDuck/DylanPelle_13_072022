@@ -8,7 +8,20 @@ const randomString = (length) => {
 	}
 	return result.join("");
 };
-
+const cookies = {
+	get: (name) => {
+		return document.cookie
+			.split("; ")
+			.find((row) => row.startsWith(`${name}=`))
+			?.split("=")[1];
+	},
+	set: (name, value) => {
+		return document.cookie
+			.split("; ")
+			.find((row) => row.startsWith(`${name}=`))
+			?.split("=")[1];
+	},
+};
 export const getLoginToken = () => {
 	const secret = document.cookie
 		.split("; ")
@@ -18,12 +31,29 @@ export const getLoginToken = () => {
 	const loginToken = Window.localstorage.token || Window.sessionStorage.token;
 	loginToken.shift();
 	loginToken.pop();
-    return loginToken;
+	return loginToken;
 };
+
 export const createLoginToken = (token) => {
 	const secret = randomString(50);
 	const reversedSecret = secret.split("").reverse().join("");
-	// TODO, set secret and reversed in random index of token
 	const newToken = `${secret}.${token}.${reversedSecret}`;
 	return { secret, newToken };
+};
+export const setTokenInformations = (newToken, secret, keepLogged = false) => {
+	localStorage.setItem("keepLogged", keepLogged);
+	const storage = keepLogged ? localStorage : sessionStorage;
+	storage.token = newToken;
+	document.cookie = `sId=${secret};`;
+};
+export const getSavedLoginInformations = () => {
+	const keepLogged = localStorage.getItem("keepLogged");
+	const storage = keepLogged ? localStorage : sessionStorage;
+	const encryptedToken = storage.getItem("token");
+	const secret = cookies.get("sId");
+	const tokenArray = encryptedToken.split(".");
+	tokenArray.pop();
+	tokenArray.shift();
+	const token = tokenArray.join().replaceAll(",", ".");
+	return { token, keepLogged };
 };

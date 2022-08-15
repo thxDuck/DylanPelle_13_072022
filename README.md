@@ -1,6 +1,6 @@
 ### TODO : 
 
-Gérer la connexion avec le token : 
+Gérer la connexion avec le token :
     - Login dans le component de Profile si user non trouvé
         - Créer un Loading spinner
     - Gérer le secret de façon random dans le token
