@@ -7,8 +7,6 @@ const HeaderProfile = () => {
 	const user = useSelector(selectUserData);
 	const dispatch = useDispatch();
 
-	console.log({user});
-
 	const logout = () => {
 		dispatch(userActions.logout())
 	}

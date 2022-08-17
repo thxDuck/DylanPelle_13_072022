@@ -1,6 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { selectAccountStatus, selectUserData, selectUserId } from "../utils/selectors";
-import {checkLogin} from "./user";
+import {
+	selectAccountStatus,
+	selectUserData,
+	selectUserId,
+	selectUserStatus,
+} from "../utils/selectors";
+import { getConnectedUser, resolveUser, logout } from "./user";
 
 const mockedAccounts = [
 	{
@@ -51,16 +56,41 @@ const initialState = {
 export const fetchUserAccounts = () => {
 	return async (dispatch, getState) => {
 		const status = getState().accounts.status;
-		if (status === "resolved" ||status === "pending" || status === "updating") return;
-		const userId = getState().user.data.id;
-		console.log("   fetchUserAccounts: ", userId);
-		if (!userId) {
-			// await checkLogin().then((user) => console.log("		checkLogin result",{user}));
+		if (status === "resolved" || status === "pending" || status === "updating") return;
+		let token = getState().user.data.token;
+		if (!token) {
+			const status = selectUserStatus(getState());
+			if (status === "pending" || status === "updating") return;
+			const { newToken, keepLogged } = await getConnectedUser();
+			if (!!newToken) {
+				resolveUser(newToken, keepLogged);
+				token = newToken;
+				dispatch(actions.fetchAccounts());
+				setTimeout(() => {
+					dispatch(actions.resolved(mockedAccountsV2));
+					return mockedAccountsV2;
+				}, 2000);
+			} else {
+				logout();
+				dispatch(actions.rejected(mockedAccountsV2));
+				return false;
+			}
+		} else {
+			dispatch(actions.fetchAccounts());
+			setTimeout(() => {
+				dispatch(actions.resolved(mockedAccountsV2));
+				return mockedAccountsV2;
+			}, 2000);
 		}
-
+		// if (!token) {
+		// 	dispatch(actions.rejected(mockedAccountsV2));
+		// 	return false;
+		// }
+		// console.log("3 - fetchAccounts");
 		// dispatch(actions.fetchAccounts());
 		// setTimeout(() => {
 		// 	dispatch(actions.resolved(mockedAccountsV2));
+		// 	return mockedAccountsV2;
 		// }, 2000);
 	};
 };

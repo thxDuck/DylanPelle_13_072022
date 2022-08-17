@@ -9,6 +9,9 @@ const HeaderProfile = () => {
 	const mode = useSelector(selectMode);
 	const user = useSelector(selectUserData);
 
+	useEffect(() => {
+			dispatch(userActions.getUser());
+	}, [dispatch]);
 	return (
 		<div className="header">
 			<h1>

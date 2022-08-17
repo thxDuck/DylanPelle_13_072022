@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { selectUserStatus } from "../utils/selectors";
 import { getToken, fetchProfile } from "../utils/services";
 import * as Autentication from "../utils/autentication.js";
+import { useDispatch } from "react-redux";
 
 const emptyUser = {
 	id: "",
@@ -34,36 +35,83 @@ export const logout = () => {
 	};
 };
 
-export const checkLogin = () => {
-	return (dispatch, getState) => {
-		const status = selectUserStatus(getState()).status;
-		if (status === "pending" || status === "updating") {
-			return;
-		}
-		const { token, keepLogged } = Autentication.getSavedLoginInformations();
+export const getUser = () => {
+	return async (dispatch, getState) => {
+		const user = getState().user;
+		console.log({ user });
+		let token = user.data.token;
+		console.log({ token });
 		if (!token) {
-			dispatch(actions.rejected());
-			return;
+			const status = selectUserStatus(getState());
+			if (status === "pending" || status === "updating") return;
+			const { newToken, keepLogged } = await getConnectedUser();
+			console.log({ newToken });
+			if (!!newToken) {
+				resolveUser(newToken, keepLogged);
+				token = newToken;
+				const { user } = await fetchUser(newToken);
+				console.log({ user, newToken, keepLogged });
+				dispatch(actions.resolved(user, newToken, keepLogged));
+			} else {
+				logout();
+				dispatch(actions.rejected());
+				return false;
+			}
+		} else {
+			dispatch(actions.resolved(user, token, true));
 		}
-		console.log("checkLogin: ", { token: token });
-		getProfile(dispatch, token, keepLogged);
 	};
 };
-
-const getProfile = async (dispatch, token, keepLogged) => {
-	await fetchProfile(token).then((response) => {
-		if (response.success) {
-			const user = response.user;
+const fetchUser = async (token) => {
+	return await fetchProfile(token);
+};
+const getProfile = async (dispatch, actions, token, keepLogged) => {
+	console.log("getProfile");
+	const response = await fetchUser(token);
+	console.log({ response });
+	if (response.success) {
+		const user = response.user;
 			const { newToken, secret } = Autentication.createLoginToken(token);
 			Autentication.setTokenInformations(newToken, secret, keepLogged);
+			// console.log({ RESOLVED: user });
 			dispatch(actions.resolved(user, token, keepLogged));
-		} else {
-			const error = response.message || "Connection error.";
-			dispatch(actions.rejected(error));
-		}
-	});
+	} else {
+		const error = response.message || "Connection error.";
+		dispatch(actions.rejected(error));
+		return false;
+	}
+	// await fetchProfile(token).then((response) => {
+	// 	if (response.success) {
+	// 		const user = response.user;
+	// 		const { newToken, secret } = Autentication.createLoginToken(token);
+	// 		Autentication.setTokenInformations(newToken, secret, keepLogged);
+	// 		// console.log({ RESOLVED: user });
+	// 		dispatch(actions.resolved(user, token, keepLogged));
+	// 		return true;
+	// 	} else {
+	// 		const error = response.message || "Connection error.";
+	// 		dispatch(actions.rejected(error));
+	// 		return false;
+	// 	}
+	// });
 };
 
+export const resolveUser = (token, keepLogged) => {
+	return (dispatch, getState) => {
+		getProfile(dispatch, actions, token, keepLogged);
+	};
+};
+export const getConnectedUser = async () => {
+	const { token, keepLogged } = Autentication.getSavedLoginInformations();
+	// console.log("     1.5.5 - getConnectedUser", { token });
+	if (!!token) {
+		resolveUser(token, keepLogged);
+		return { newToken: token, keepLogged };
+	} else {
+		logout();
+		return { token, keepLogged };
+	}
+};
 export const login = (email, password, keepLogged) => {
 	return async (dispatch, getState) => {
 		const status = selectUserStatus(getState()).status;
@@ -73,7 +121,7 @@ export const login = (email, password, keepLogged) => {
 		const response = await getToken(email, password);
 		if (response.success) {
 			const token = response.token;
-			getProfile(dispatch, token, keepLogged);
+			getProfile(dispatch, actions, token, keepLogged);
 		} else {
 			const error = response.message || "Connection error.";
 			dispatch(actions.rejected(error));

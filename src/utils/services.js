@@ -50,13 +50,13 @@ const getAuthenticateHeaders = (token) => {
 };
 
 export const fetchProfile = async (token) => {
-	console.log("FETCH PROFILE => ",{ token });
 	const options = {
 		method: "POST",
 		headers: getAuthenticateHeaders(token),
 	};
 	try {
 		const apiResponse = await postAPI(REQUESTS_URLS.findUser, options);
+		console.log('   fetchProfile => api-response => ', apiResponse );
 		if (apiResponse.status === 200) {
 			return { ...SUCCESS, user: apiResponse.body };
 		} else {

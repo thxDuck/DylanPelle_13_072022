@@ -14,51 +14,43 @@ import {
 	userLoginStatus,
 } from "../utils/selectors";
 
-const mockedAccounts = [
-	{
-		id: 1,
-		title: "",
-		amount: "",
-		amountDescription: "",
-		mock: true,
-	},
-	{
-		id: 2,
-		title: "",
-		amount: "",
-		amountDescription: "",
-		mock: true,
-	},
-	{
-		id: 3,
-		title: "",
-		amount: "",
-		amountDescription: "",
-		mock: true,
-	},
-];
+// const mockedAccounts = [
+// 	{
+// 		id: 1,
+// 		title: "",
+// 		amount: "",
+// 		amountDescription: "",
+// 		mock: true,
+// 	},
+// 	{
+// 		id: 2,
+// 		title: "",
+// 		amount: "",
+// 		amountDescription: "",
+// 		mock: true,
+// 	},
+// 	{
+// 		id: 3,
+// 		title: "",
+// 		amount: "",
+// 		amountDescription: "",
+// 		mock: true,
+// 	},
+// ];
 const Profile = () => {
 	const dispatch = useDispatch();
-	const user = useSelector(selectUserData);
-	const userId = user.id;
-	const isConnected = useSelector(userIsConnected);
 	const loginStatus = useSelector(userLoginStatus);
-// TODO : Tout récupérer dans chackLogin, cela renverra alors l'user, ou alors une erreur 
+	// TODO : Connecter l'usilisateur au chargement de la page dans le app, comme ça j'ai toute les infos et je SAIS que dans mes components j'ai mon user et token
 	useEffect(() => {
-		console.log({ userId });
-		if (isConnected) {
-			dispatch(accountActions.fetchUserAccounts(userId));
-		} else {
-			dispatch(userActions.checkLogin());
-		}
-	}, [dispatch, isConnected, userId]);
+		dispatch(accountActions.fetchUserAccounts());
+	}, [dispatch, loginStatus]);
 
 	const userAccounts = useSelector(selectAccountsData);
 	const accountStatus = useSelector(selectAccountStatus);
 
 	console.log("render profile");
 
-	switch (loginStatus) {
+	switch (accountStatus) {
 		case "resolved":
 			return (
 				<main className="main bg-dark">
