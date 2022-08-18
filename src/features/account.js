@@ -1,11 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import {
-	selectAccountStatus,
-	selectUserData,
-	selectUserId,
-	selectUserStatus,
-} from "../utils/selectors";
-import { getConnectedUser, resolveUser, logout } from "./user";
+import { selectAccountStatus } from "../utils/selectors";
+import * as Authentication from "../utils/autentication";
 
 const mockedAccounts = [
 	{
@@ -55,43 +50,17 @@ const initialState = {
 };
 export const fetchUserAccounts = () => {
 	return async (dispatch, getState) => {
-		const status = getState().accounts.status;
-		if (status === "resolved" || status === "pending" || status === "updating") return;
-		let token = getState().user.data.token;
+		const status = selectAccountStatus(getState());
+		if (status === "pending" || status === "updating") return;
+		dispatch(actions.fetchAccounts());
+		const token = Authentication.getSavedLoginInformations();
 		if (!token) {
-			const status = selectUserStatus(getState());
-			if (status === "pending" || status === "updating") return;
-			const { newToken, keepLogged } = await getConnectedUser();
-			if (!!newToken) {
-				resolveUser(newToken, keepLogged);
-				token = newToken;
-				dispatch(actions.fetchAccounts());
-				setTimeout(() => {
-					dispatch(actions.resolved(mockedAccountsV2));
-					return mockedAccountsV2;
-				}, 2000);
-			} else {
-				logout();
-				dispatch(actions.rejected(mockedAccountsV2));
-				return false;
-			}
+			dispatch(actions.rejected());
 		} else {
-			dispatch(actions.fetchAccounts());
 			setTimeout(() => {
 				dispatch(actions.resolved(mockedAccountsV2));
-				return mockedAccountsV2;
-			}, 2000);
+			}, 500);
 		}
-		// if (!token) {
-		// 	dispatch(actions.rejected(mockedAccountsV2));
-		// 	return false;
-		// }
-		// console.log("3 - fetchAccounts");
-		// dispatch(actions.fetchAccounts());
-		// setTimeout(() => {
-		// 	dispatch(actions.resolved(mockedAccountsV2));
-		// 	return mockedAccountsV2;
-		// }, 2000);
 	};
 };
 const accountSlice = createSlice({
@@ -105,15 +74,10 @@ const accountSlice = createSlice({
 					draft.error = null;
 					return;
 				}
-				if (draft.status === "updating") {
-					draft.status = "pending";
-					draft.error = null;
-					return;
-				}
 				if (draft.status === "rejected") {
 					draft.error = null;
 					draft.status = "pending";
-					draft.data = [];
+					draft.data = mockedAccounts;
 					return;
 				}
 				if (draft.status === "resolved") {
@@ -158,5 +122,4 @@ const accountSlice = createSlice({
 });
 
 const { actions, reducer } = accountSlice;
-export const { editNames } = actions;
 export default reducer;

@@ -41,7 +41,6 @@ const LoginForm = () => {
 			navigate("/profile");
 		}, 1000);
 	}
-	console.log("render");
 	return (
 		<form onSubmit={handleSumbmit}>
 			<div className="input-wrapper">

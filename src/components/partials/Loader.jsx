@@ -13,7 +13,11 @@ const createBars = (color) => {
 
 const Loader = ({ color = "#7f58af" }) => {
 	const bars = createBars(color);
-	return <div className="lds-spinner">{bars}</div>;
+	return (
+		<div className="loading">
+			<div className="lds-spinner">{bars}</div>;
+		</div>
+	);
 };
 
 export default Loader;

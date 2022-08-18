@@ -22,18 +22,6 @@ const cookies = {
 			?.split("=")[1];
 	},
 };
-export const getLoginToken = () => {
-	const secret = document.cookie
-		.split("; ")
-		.find((row) => row.startsWith("sId="))
-		?.split("=")[1];
-	if (!secret) return false;
-	const loginToken = Window.localstorage.token || Window.sessionStorage.token;
-	loginToken.shift();
-	loginToken.pop();
-	return loginToken;
-};
-
 export const createLoginToken = (token) => {
 	const secret = randomString(50);
 	const reversedSecret = secret.split("").reverse().join("");
@@ -55,5 +43,5 @@ export const getSavedLoginInformations = () => {
 	tokenArray.pop();
 	tokenArray.shift();
 	const token = tokenArray.join().replaceAll(",", ".");
-	return { token, keepLogged };
+	return token;
 };

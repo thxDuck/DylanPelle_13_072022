@@ -1,23 +1,25 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import Login from "../partials/Login.jsx";
 import NavProfile from "./NavProfile.jsx";
-import {
-	 userIsConnected,
-	//  selectUserData 
-	} from "../../utils/selectors";
+import { getUser } from "../../features/user";
 import argentBankLogo from "../../assets/img/argentBankLogo.png";
 
 const Header = () => {
-	const userIsLogged = useSelector(userIsConnected);
-	// const userData = useSelector(selectUserData);
+	const user = useSelector((state) => state.user); //get user state
+    const dispatch = useDispatch()
+    
+    useEffect(() => {
+        dispatch(getUser());
+    },[dispatch]);
+
 	return (
 		<nav className="main-nav">
 			<a className="main-nav-logo" href="./">
 				<img className="main-nav-logo-image" src={argentBankLogo} alt="Argent Bank Logo" />
 				<h1 className="sr-only">Argent Bank</h1>
 			</a>
-			{userIsLogged ? <NavProfile /> : <Login />}
+			{user.connected ? <NavProfile /> : <Login />}
 		</nav>
 	);
 };
