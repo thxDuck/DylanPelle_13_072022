@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { selectUserStatus } from "../utils/selectors";
 import { getToken, fetchProfile } from "../utils/services";
 import * as Authentication from "../utils/autentication.js";
+import { clearAccounts } from "./account";
 
 const emptyUser = {
 	id: "",
@@ -28,7 +29,9 @@ export const setMode = (mode) => {
 };
 export const logout = () => {
 	return (dispatch, getState) => {
+		Authentication.clearLoginInformations();
 		dispatch(actions.logout());
+		clearAccounts();
 	};
 };
 export const getUser = () => {
@@ -67,7 +70,7 @@ export const login = (email, password, keepLogged) => {
 		if (response.success) {
 			const token = response.token;
 			const { newToken, secret } = Authentication.createLoginToken(token);
-			Authentication.setTokenInformations(newToken, secret, keepLogged);			
+			Authentication.setTokenInformations(newToken, secret, keepLogged);
 			getProfile(dispatch, actions, token);
 		} else {
 			const error = response.message || "Connection error.";
@@ -135,10 +138,7 @@ const userSlice = createSlice({
 		},
 		logout: {
 			reducer: (draft, action) => {
-				draft.token = "";
-				draft.error = false;
-				draft.status = "void";
-				draft.user = { ...emptyUser };
+				draft = initialState;
 				return;
 			},
 		},

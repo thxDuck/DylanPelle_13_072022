@@ -48,6 +48,9 @@ const initialState = {
 	error: false,
 	data: mockedAccounts,
 };
+export const clearAccounts = () => {
+	
+}
 export const fetchUserAccounts = () => {
 	return async (dispatch, getState) => {
 		const status = selectAccountStatus(getState());

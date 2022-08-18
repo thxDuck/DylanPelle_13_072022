@@ -46,3 +46,8 @@ export const getSavedLoginInformations = () => {
 	const token = tokenArray.join().replaceAll(",", ".");
 	return token;
 };
+export const clearLoginInformations = () => {
+	cookies.set("sId", "");
+	localStorage.clear();
+	sessionStorage.clear();
+};
