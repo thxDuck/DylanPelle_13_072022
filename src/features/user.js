@@ -41,8 +41,8 @@ export const getUser = () => {
 			const user = response.user;
 			dispatch(actions.resolved(user, token));
 		} else {
-			const error = response.message || "Connection error.";
-			dispatch(actions.rejected(error));
+			// console.error("Error in getUser :", response.message);
+			dispatch(actions.rejected());
 		}
 	};
 };
@@ -50,8 +50,6 @@ const getProfile = async (dispatch, actions, token) => {
 	const response = await fetchProfile(token);
 	if (response.success) {
 		const user = response.user;
-		const { newToken, secret } = Authentication.createLoginToken(token);
-		Authentication.setTokenInformations(newToken, secret);
 		dispatch(actions.resolved(user, token));
 	} else {
 		const error = response.message || "Connection error.";
@@ -68,7 +66,9 @@ export const login = (email, password, keepLogged) => {
 		const response = await getToken(email, password);
 		if (response.success) {
 			const token = response.token;
-			getProfile(dispatch, actions, token, keepLogged);
+			const { newToken, secret } = Authentication.createLoginToken(token);
+			Authentication.setTokenInformations(newToken, secret, keepLogged);			
+			getProfile(dispatch, actions, token);
 		} else {
 			const error = response.message || "Connection error.";
 			dispatch(actions.rejected(error));

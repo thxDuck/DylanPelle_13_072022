@@ -35,10 +35,11 @@ export const setTokenInformations = (newToken, secret, keepLogged = false) => {
 	document.cookie = `sId=${secret};`;
 };
 export const getSavedLoginInformations = () => {
-	const keepLogged = localStorage.getItem("keepLogged");
+	const keepLogged = localStorage.keepLogged === "true";
 	const storage = keepLogged ? localStorage : sessionStorage;
 	const encryptedToken = storage.getItem("token");
 	const secret = cookies.get("sId");
+	if (!encryptedToken || !secret) return false;
 	const tokenArray = encryptedToken.split(".");
 	tokenArray.pop();
 	tokenArray.shift();

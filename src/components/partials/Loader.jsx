@@ -11,7 +11,7 @@ const createBars = (color) => {
 	});
 };
 
-const Loader = ({ color = "#7f58af" }) => {
+const Loader = ({ color = "#fff" }) => {
 	const bars = createBars(color);
 	return (
 		<div className="loading">

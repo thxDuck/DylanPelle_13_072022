@@ -10,8 +10,9 @@ const Header = () => {
     const dispatch = useDispatch()
     
     useEffect(() => {
-        dispatch(getUser());
-    },[dispatch]);
+		console.log({ user: user.status });
+        if (user.status !== "rejected") dispatch(getUser());
+    },[dispatch, user.status]);
 
 	return (
 		<nav className="main-nav">
