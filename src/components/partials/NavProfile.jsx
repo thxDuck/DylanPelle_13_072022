@@ -10,8 +10,9 @@ const HeaderProfile = () => {
 	const logout = () => {
 		dispatch(userActions.logout())
 	}
+	
 	return (
-		<div>
+		<div className="nav-profile">
 			<a className="main-nav-item" href="./profile">
 				<i className="fa fa-user-circle"></i>
 				{ user.firstName }

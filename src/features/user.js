@@ -1,10 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { selectUserStatus } from "../utils/selectors";
+import { selectUserStatus, selectAccountIds } from "../utils/selectors";
 import { getToken, fetchProfile, updateUserName } from "../utils/services";
 import * as Authentication from "../utils/autentication.js";
 import { clearAccounts } from "./account";
-
-// 0 615 101 110 021 704
 
 const emptyUser = {
 	id: "",
@@ -23,33 +21,7 @@ const initialState = {
 	token: "",
 	keepLogged: false,
 };
-export const setMode = (mode) => {
-	return (dispatch, getState) => {
-		dispatch(actions.setMode(mode));
-	};
-};
-export const logout = () => {
-	return (dispatch, getState) => {
-		Authentication.clearLoginInformations();
-		dispatch(actions.logout());
-		clearAccounts();
-	};
-};
-export const getUser = () => {
-	return async (dispatch, getState) => {
-		const status = selectUserStatus(getState());
-		if (status === "pending" || status === "updating") return;
-		const token = Authentication.getSavedLoginInformations();
-		const response = await fetchProfile(token);
-		if (response.success) {
-			const user = response.user;
-			dispatch(actions.resolved(user, token));
-		} else {
-			// console.error("Error in getUser :", response.message);
-			dispatch(actions.rejected());
-		}
-	};
-};
+
 const getProfile = async (dispatch, actions, token) => {
 	const response = await fetchProfile(token);
 	if (response.success) {
@@ -62,14 +34,53 @@ const getProfile = async (dispatch, actions, token) => {
 	}
 };
 
-export const editName = (firstName, lastName) => {
+// export const setAccountIds = (accountIds) => {
+// 	return (dispatch, getState) => {
+// 		dispatch(actions.setAccountIds(accountIds));
+// 	};
+// };
+export const setMode = (mode) => {
+	return (dispatch, getState) => {
+		dispatch(actions.setMode(mode));
+	};
+};
+
+export const logout = () => {
+	return (dispatch, getState) => {
+		Authentication.clearLoginInformations();
+		dispatch(actions.logout());
+		clearAccounts();
+	};
+};
+export const getUser = () => {
 	return async (dispatch, getState) => {
 		const status = selectUserStatus(getState());
 		if (status === "pending" || status === "updating") return;
-		dispatch(actions.updating());
 		const token = Authentication.getSavedLoginInformations();
+		if (!token) {
+			dispatch(actions.rejected());
+			return false;
+		}
+		const response = await fetchProfile(token);
+		if (response.success) {
+			const user = response.user;
+			const accountsIds = selectAccountIds(getState());
+			user.accountIds = accountsIds;
+			dispatch(actions.resolved(user, token));
+		} else dispatch(actions.rejected());
+	};
+};
+
+export const editName = (firstName, lastName) => {
+	return async (dispatch, getState) => {
+		const token = Authentication.getSavedLoginInformations();
+		if (!token) {
+			dispatch(actions.rejected());
+			return false;
+		}
 		const nameUpdated = await updateUserName(token, firstName, lastName);
-		dispatch(actions.changeName(firstName, lastName));
+		if (nameUpdated.success) dispatch(actions.editNameResolved(firstName, lastName));
+		else dispatch(actions.onError("Error ! Name not updated !"));
 	};
 };
 
@@ -83,7 +94,7 @@ export const login = (email, password, keepLogged) => {
 		if (response.success) {
 			const token = response.token;
 			const { newToken, secret } = Authentication.createLoginToken(token);
-			Authentication.setTokenInformations(newToken, secret, keepLogged);
+			Authentication.setLoginInformations(newToken, secret, keepLogged);
 			getProfile(dispatch, actions, token);
 		} else {
 			const error = response.message || "Connection error.";
@@ -110,12 +121,12 @@ const userSlice = createSlice({
 				if (draft.status === "rejected") {
 					draft.error = null;
 					draft.status = "pending";
-					draft.user = { ...emptyUser };
+					draft.data = { ...emptyUser };
 					return;
 				}
 				if (draft.status === "resolved") {
 					draft.status = "updating";
-					draft.user = { ...emptyUser };
+					draft.data = { ...emptyUser };
 					return;
 				}
 			},
@@ -126,7 +137,7 @@ const userSlice = createSlice({
 			}),
 			reducer: (draft, action) => {
 				draft.status = "resolved";
-				draft.data = action.payload.user;
+				draft.data = { ...action.payload.user };
 				draft.token = action.payload.token;
 				draft.error = false;
 				draft.connected = true;
@@ -135,9 +146,11 @@ const userSlice = createSlice({
 		},
 		setMode: (draft, action) => {
 			draft.mode = action.payload;
+			draft.error = action.payload !== "error" ? false : draft.error;
+
 			return;
 		},
-		changeName: {
+		editNameResolved: {
 			prepare: (firstName, lastName) => ({
 				payload: { firstName, lastName },
 			}),
@@ -145,11 +158,14 @@ const userSlice = createSlice({
 				draft.status = "resolved";
 				draft.data.firstName = action.payload.firstName;
 				draft.data.lastName = action.payload.lastName;
+				draft.error = false;
+				draft.mode = null;
 				return;
 			},
 		},
 		updating: (draft, action) => {
 			draft.status = "updating";
+			draft.error = false;
 			return;
 		},
 		rejected: {
@@ -160,7 +176,17 @@ const userSlice = createSlice({
 				draft.token = "";
 				draft.error = action.payload.error;
 				draft.status = "rejected";
-				draft.user = { ...emptyUser };
+				draft.data = { ...emptyUser };
+				return;
+			},
+		},
+		onError: {
+			prepare: (errorMessage) => ({
+				payload: { error: errorMessage },
+			}),
+			reducer: (draft, action) => {
+				draft.error = action.payload.error;
+				draft.mode = "error";
 				return;
 			},
 		},
@@ -174,5 +200,4 @@ const userSlice = createSlice({
 });
 
 const { actions, reducer } = userSlice;
-export const { editNames } = actions;
 export default reducer;

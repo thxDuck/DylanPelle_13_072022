@@ -1,15 +1,21 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import * as userActions from "../../features/user";
+import { selectUserError, selectMode } from "../../utils/selectors";
 
 const EditName = (props) => {
 	const { firstName, lastName } = props;
 	const dispatch = useDispatch();
+	const mode = useSelector(selectMode);
+	const error = useSelector(selectUserError);
+
 	const [userName, setUserName] = useState({
-		firstName: firstName,
-		lastName: lastName,
+		firstName: firstName || "",
+		lastName: lastName || "",
 	});
 	const quitEdit = () => dispatch(userActions.setMode(""));
+
+	if (!mode) quitEdit();
 
 	const handleInputChange = (event) => {
 		const target = event.target;
@@ -21,15 +27,9 @@ const EditName = (props) => {
 
 	const handleSumbmit = (event) => {
 		event.preventDefault();
-		dispatch(
-			userActions.editName(
-				userName.firstName,
-				userName.lastName,
-			)
-		);
-		quitEdit();
-		console.log("Final names => ", userName);
+		dispatch(userActions.editName(userName.firstName, userName.lastName));
 	};
+	
 	const handleReset = (event) => {
 		event.preventDefault();
 		setUserName({
@@ -37,11 +37,11 @@ const EditName = (props) => {
 			lastName: "",
 		});
 		quitEdit();
-		console.log("Final names => ", userName);
 	};
 
 	return (
 		<form id="editProfile" onSubmit={handleSumbmit}>
+				{mode === "error" ? <p className="message-error">{error}</p> : ""}
 			<div className="input-group">
 				<input
 					type="text"

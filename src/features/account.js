@@ -48,9 +48,7 @@ const initialState = {
 	error: false,
 	data: mockedAccounts,
 };
-export const clearAccounts = () => {
-	
-}
+
 export const fetchUserAccounts = () => {
 	return async (dispatch, getState) => {
 		const status = selectAccountStatus(getState());
@@ -66,6 +64,13 @@ export const fetchUserAccounts = () => {
 		}
 	};
 };
+
+export const clearAccounts = () => {
+	return async (dispatch, getState) => {
+		dispatch(actions.clearAccounts());
+	};
+};
+
 const accountSlice = createSlice({
 	name: "accounts",
 	initialState: initialState,
@@ -118,6 +123,13 @@ const accountSlice = createSlice({
 					draft.data = [];
 					return;
 				}
+				return;
+			},
+		},
+		clearAccounts: {
+			reducer: (draft, action) => {
+				draft.status = "void";
+				draft.data = mockedAccounts;
 				return;
 			},
 		},

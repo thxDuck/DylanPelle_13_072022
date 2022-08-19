@@ -8,10 +8,10 @@ import * as accountActions from "../features/account";
 import { selectAccountsData, selectAccountStatus, selectUserStatus } from "../utils/selectors";
 
 const Profile = () => {
+	const dispatch = useDispatch();
 	const accountStatus = useSelector(selectAccountStatus);
 	const userAccounts = useSelector(selectAccountsData); //get user state
 	const userStatus = useSelector(selectUserStatus); //get user state
-	const dispatch = useDispatch();
 
 	useEffect(() => {
 		dispatch(accountActions.fetchUserAccounts());

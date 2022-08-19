@@ -39,7 +39,7 @@ export const getToken = async (email, password) => {
 			return { ...ERROR, ...apiResponse };
 		}
 	} catch (error) {
-		console.log("catch error => ", error);
+		console.error("catch error => ", error);
 		return { ERROR, ...error };
 	}
 };
@@ -69,16 +69,16 @@ export const fetchProfile = async (token) => {
 
 export const updateUserName = async (token, firstName, lastName) => {
 	const data = { firstName: firstName, lastName: lastName };
-	console.log({ data });
 	const options = {
 		method: "PUT",
-		headers: getAuthenticateHeaders(token),
+		headers: {
+			authorization: `Bearer ${token}`,
+			"Content-Type": "application/json"
+		},
 		body: JSON.stringify(data),
 	};
 	try {
 		const apiResponse = await postAPI(REQUESTS_URLS.update, options);
-		// const apiResponse = { status: 200 };
-		console.log("UPDATE USER NAME => ", { apiResponse });
 		if (apiResponse.status === 200) {
 			return { ...SUCCESS };
 		} else {

@@ -8,6 +8,14 @@ import { selectUserStatus, selectUserError } from "../../utils/selectors";
 const LoginForm = () => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
+
+	const error = useSelector(selectUserError);
+	const status = useSelector(selectUserStatus);
+	if (status === "resolved" && !error) {
+		setTimeout(() => {
+			navigate("/profile");
+		}, 1000);
+	}
 	const [userCredentials, setUserCredentials] = useState({
 		email: "",
 		password: "",
@@ -34,13 +42,6 @@ const LoginForm = () => {
 		);
 	};
 
-	const error = useSelector(selectUserError);
-	const status = useSelector(selectUserStatus);
-	if (status === "resolved" && !error) {
-		setTimeout(() => {
-			navigate("/profile");
-		}, 1000);
-	}
 	return (
 		<form onSubmit={handleSumbmit}>
 			<div className="input-wrapper">

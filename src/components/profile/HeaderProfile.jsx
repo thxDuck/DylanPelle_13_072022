@@ -1,8 +1,10 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import EditName from "./EditName.jsx";
+
 import { selectUserData, selectMode } from "../../utils/selectors";
 import * as userActions from "../../features/user";
+
 const HeaderProfile = () => {
 	const dispatch = useDispatch();
 	const mode = useSelector(selectMode);
@@ -11,6 +13,7 @@ const HeaderProfile = () => {
 	useEffect(() => {
 			dispatch(userActions.getUser());
 	}, [dispatch]);
+
 	return (
 		<div className="header">
 			<h1>

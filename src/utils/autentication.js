@@ -18,10 +18,10 @@ const cookies = {
 			?.split("=")[1];
 	},
 	set: (name, value) => {
-		return document.cookie
-			.split("; ")
-			.find((row) => row.startsWith(`${name}=`))
-			?.split("=")[1];
+		return (document.cookie = `${name}=${value};`);
+	},
+	clear: (name) => {
+		return (document.cookie = `${name}="";max-age=0`);
 	},
 };
 export const createLoginToken = (token) => {
@@ -30,11 +30,11 @@ export const createLoginToken = (token) => {
 	const encryptedToken = CryptoJS.AES.encrypt(token, reversedSecret).toString();
 	return { secret, newToken: encryptedToken };
 };
-export const setTokenInformations = (newToken, secret, keepLogged = false) => {
+export const setLoginInformations = (newToken, secret, keepLogged = false) => {
 	localStorage.setItem("keepLogged", keepLogged);
 	const storage = keepLogged ? localStorage : sessionStorage;
 	storage.token = newToken;
-	document.cookie = `sId=${secret};`;
+	cookies.set("sId", secret);
 };
 export const getSavedLoginInformations = () => {
 	const keepLogged = localStorage.keepLogged === "true";
@@ -48,7 +48,7 @@ export const getSavedLoginInformations = () => {
 	return token;
 };
 export const clearLoginInformations = () => {
-	cookies.set("sId", "");
+	cookies.clear("sId");
 	localStorage.clear();
 	sessionStorage.clear();
 };
