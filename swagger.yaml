@@ -1,0 +1,188 @@
+swagger: "2.0"
+info:
+  title: Bank Argent API documentation for accounts and transaction
+  description: Contains API endpoints for user accounts and transactions
+  version: 1.1.0
+  termsOfService: http://swagger.io/terms/
+host: localhost:3001
+basePath: /api/v1-5
+schemes:
+  - http
+paths:
+  /account:
+    post:
+      security:
+        - Bearer: []
+      tags:
+        - Account Module
+      summary: Account API
+      description: API for fetching an account
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: Account Id identifier
+          required: true
+          schema:
+            $ref: "#/definitions/GetAccount"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Account retrieved successully
+          schema:
+            $ref: "#/definitions/AccountApiResponse"
+        "400":
+          description: Invalid Fields
+        "500":
+          description: Internal Server Error
+  /transaction:
+    post:
+      security:
+        - Bearer: []
+      tags:
+        - Transaction Module
+      summary: Transaction API
+      description: Transaction for fetching a transaction
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: Account Id identifier
+          required: true
+          schema:
+            $ref: "#/definitions/GetTransaction"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Transaction retrieved successully
+          schema:
+            $ref: "#/definitions/TransactionGetResponse"
+        "400":
+          description: Invalid Fields
+        "500":
+          description: Internal Server Error
+    put:
+      security:
+        - Bearer: []
+      tags:
+        - Transaction Module
+      summary: Update transaction
+      description: API for updating a transaction
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          description: Attach Bearer JWT token
+          required: true
+        - in: body
+          name: body
+          description: Update transaction profile attributes
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateTransaction"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Transaction update successully
+          schema:
+            $ref: "#/definitions/UpdateTransaction"
+        "400":
+          description: Invalid Fields
+        "500":
+          description: Internal Server Error
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+definitions:
+  AccountApiResponse:
+    properties:
+      id:
+        type: string
+        description: Account identifier
+      name:
+        type: string
+        description: Name of account (credit card, Savings...)
+      currency:
+        type: string
+        description: Default currency of account
+      amount:
+        type: number
+        description: Current amount
+      ownerId:
+        type: string
+        description: Owner id (user.id)
+      contractId:
+        type: string
+        description: Contract identifier
+  TransactionGetResponse:
+    properties:
+      id:
+        type: string
+        description: Transaction identifier
+      accountId:
+        type: string
+        description: identifier of account
+      description:
+        type: string
+        description: Name of transaction (ex Johnson Bakery)
+      date:
+        type: number
+        description: Date of transaction (timestamp)
+      amount:
+        type: number
+        description: Amount
+      operation:
+        type: string
+        description: Debit or credit
+      category:
+        type: string
+        description: Category of transaction
+  GetAccount:
+    properties:
+      userId:
+        type: string
+        description: User
+      month:
+        type: integer
+        description: Month selected (1-12)
+  GetTransaction:
+    properties:
+      userId:
+        type: string
+        description: User
+      transactionId:
+        type: string
+        description: Identifier of transaction
+  UpdateTransaction:
+    properties:
+      description:
+        type: string
+        description: Name of transaction (ex Johnson Bakery)
+      category:
+        type: string
+        description: Category of transaction
+  TransactionPutResponse:
+    type: object
+    properties:
+      status:
+        type: integer
+      message:
+        type: string
+      body:
+        type: object
+        properties:
+          transactionId:
+            type: string
