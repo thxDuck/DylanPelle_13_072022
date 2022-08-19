@@ -3,6 +3,7 @@ const APIUrl = `${config.baseUrl}:${config.apiPort}${config.version}`;
 const REQUESTS_URLS = {
 	login: "/user/login",
 	findUser: "/user/profile",
+	update: "/user/profile",
 };
 const SUCCESS = {
 	success: true,
@@ -44,6 +45,8 @@ export const getToken = async (email, password) => {
 };
 
 const getAuthenticateHeaders = (token) => {
+	console.info("getAuthenticateHeaders => ", token);
+	console.log({ token });
 	return {
 		authorization: `Bearer ${token}`,
 	};
@@ -58,6 +61,28 @@ export const fetchProfile = async (token) => {
 		const apiResponse = await postAPI(REQUESTS_URLS.findUser, options);
 		if (apiResponse.status === 200) {
 			return { ...SUCCESS, user: apiResponse.body };
+		} else {
+			return { ...ERROR, ...apiResponse };
+		}
+	} catch (error) {
+		return { ERROR, ...error };
+	}
+};
+
+export const updateUserName = async (token, firstName, lastName) => {
+	const data = { firstName: firstName, lastName: lastName };
+	console.log({ data });
+	const options = {
+		method: "PUT",
+		headers: getAuthenticateHeaders(token),
+		body: JSON.stringify(data),
+	};
+	try {
+		// const apiResponse = await postAPI(REQUESTS_URLS.update, options);
+		const apiResponse = { status: 200 };
+		console.log("UPDATE USER NAME => ", { apiResponse });
+		if (apiResponse.status === 200) {
+			return { ...SUCCESS };
 		} else {
 			return { ...ERROR, ...apiResponse };
 		}

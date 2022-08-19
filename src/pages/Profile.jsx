@@ -17,8 +17,6 @@ const Profile = () => {
 		dispatch(accountActions.fetchUserAccounts());
 	}, [dispatch]);
 
-	console.log("Profile render :", { userStatus });
-
 	return userStatus !== "rejected" ? (
 		<main className="main bg-dark">
 			<HeaderProfile />

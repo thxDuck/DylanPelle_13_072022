@@ -1,8 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { selectUserStatus } from "../utils/selectors";
-import { getToken, fetchProfile } from "../utils/services";
+import { getToken, fetchProfile, updateUserName } from "../utils/services";
 import * as Authentication from "../utils/autentication.js";
 import { clearAccounts } from "./account";
+
+// 0 615 101 110 021 704
 
 const emptyUser = {
 	id: "",
@@ -23,7 +25,6 @@ const initialState = {
 };
 export const setMode = (mode) => {
 	return (dispatch, getState) => {
-		console.log({ mode });
 		dispatch(actions.setMode(mode));
 	};
 };
@@ -60,6 +61,18 @@ const getProfile = async (dispatch, actions, token) => {
 		return false;
 	}
 };
+
+export const editName = (firstName, lastName) => {
+	return async (dispatch, getState) => {
+		const status = selectUserStatus(getState());
+		if (status === "pending" || status === "updating") return;
+		dispatch(actions.updating());
+		const token = Authentication.getSavedLoginInformations();
+		const nameUpdated = await updateUserName(token, firstName, lastName);
+		dispatch(actions.changeName(firstName, lastName));
+	};
+};
+
 export const login = (email, password, keepLogged) => {
 	return async (dispatch, getState) => {
 		const status = selectUserStatus(getState());
@@ -122,6 +135,21 @@ const userSlice = createSlice({
 		},
 		setMode: (draft, action) => {
 			draft.mode = action.payload;
+			return;
+		},
+		changeName: {
+			prepare: (firstName, lastName) => ({
+				payload: { firstName, lastName },
+			}),
+			reducer: (draft, action) => {
+				draft.status = "resolved";
+				draft.data.firstName = action.payload.firstName;
+				draft.data.lastName = action.payload.lastName;
+				return;
+			},
+		},
+		updating: (draft, action) => {
+			draft.status = "updating";
 			return;
 		},
 		rejected: {

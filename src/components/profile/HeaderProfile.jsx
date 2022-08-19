@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import EditName from "./EditName.jsx";
 import { selectUserData, selectMode } from "../../utils/selectors";
 import * as userActions from "../../features/user";
 const HeaderProfile = () => {
 	const dispatch = useDispatch();
-	const [edit, setEdit] = useState(false);
 	const mode = useSelector(selectMode);
 	const user = useSelector(selectUserData);
 
@@ -24,7 +23,7 @@ const HeaderProfile = () => {
 					Edit Name
 				</button>
 			) : (
-				<EditName />
+				<EditName firstName={user.firstName} lastName={user.lastName} />
 			)}
 		</div>
 	);

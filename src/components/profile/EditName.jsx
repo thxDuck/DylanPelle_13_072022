@@ -1,34 +1,43 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
-import { selectUserData } from "../../utils/selectors";
+import { useDispatch } from "react-redux";
+import * as userActions from "../../features/user";
 
-const EditName = () => {
-	const user = useSelector(selectUserData);
-	const [userNames, setUserNames] = useState({
-		firstName: user.firstName,
-		lastName: user.lastName,
+const EditName = (props) => {
+	const { firstName, lastName } = props;
+	const dispatch = useDispatch();
+	const [userName, setUserName] = useState({
+		firstName: firstName,
+		lastName: lastName,
 	});
+	const quitEdit = () => dispatch(userActions.setMode(""));
 
 	const handleInputChange = (event) => {
 		const target = event.target;
 		const value = target.value.trim();
 		const inputName = target.name;
-		userNames[inputName] = value;
-		setUserNames({ ...userNames, [inputName]: value });
+		userName[inputName] = value;
+		setUserName({ ...userName, [inputName]: value });
 	};
 
 	const handleSumbmit = (event) => {
 		event.preventDefault();
-		console.log("Final names => ", userNames);
+		dispatch(
+			userActions.editName(
+				userName.firstName,
+				userName.lastName,
+			)
+		);
+		quitEdit();
+		console.log("Final names => ", userName);
 	};
 	const handleReset = (event) => {
 		event.preventDefault();
-		setUserNames({
-			firstName: user.firstName,
-			lastName: user.lastName,
+		setUserName({
+			firstName: "",
+			lastName: "",
 		});
-		console.log("Final names => ", userNames);
-		// TODO : Quit edit mode !
+		quitEdit();
+		console.log("Final names => ", userName);
 	};
 
 	return (
@@ -38,16 +47,16 @@ const EditName = () => {
 					type="text"
 					name="firstName"
 					id="firstName"
-					placeholder={user.firstName}
-					value={user.firstName}
+					placeholder={firstName}
+					value={userName.firstName}
 					onChange={handleInputChange}
 				/>
 				<input
 					type="text"
 					name="lastName"
 					id="lastName"
-					placeholder={user.lastName}
-					value={user.lastName}
+					placeholder={lastName}
+					value={userName.lastName}
 					onChange={handleInputChange}
 				/>
 			</div>

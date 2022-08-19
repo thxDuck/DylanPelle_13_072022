@@ -7,12 +7,13 @@ import argentBankLogo from "../../assets/img/argentBankLogo.png";
 
 const Header = () => {
 	const user = useSelector((state) => state.user); //get user state
-    const dispatch = useDispatch()
-    
-    useEffect(() => {
-		console.log({ user: user.status });
-        if (user.status !== "rejected") dispatch(getUser());
-    },[dispatch, user.status]);
+	const connected = user.connected;
+	const status = user.status;
+	const dispatch = useDispatch();
+
+	useEffect(() => {
+		if (!connected && status !== "rejected") dispatch(getUser());
+	}, [dispatch, status, connected]);
 
 	return (
 		<nav className="main-nav">
