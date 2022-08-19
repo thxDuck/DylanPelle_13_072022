@@ -1,3 +1,5 @@
+const CryptoJS = require("crypto-js");
+
 const randomString = (length) => {
 	const result = [];
 	const characters =
@@ -25,8 +27,8 @@ const cookies = {
 export const createLoginToken = (token) => {
 	const secret = randomString(50);
 	const reversedSecret = secret.split("").reverse().join("");
-	const newToken = `${secret}.${token}.${reversedSecret}`;
-	return { secret, newToken };
+	const encryptedToken = CryptoJS.AES.encrypt(token, reversedSecret).toString();
+	return { secret, newToken: encryptedToken };
 };
 export const setTokenInformations = (newToken, secret, keepLogged = false) => {
 	localStorage.setItem("keepLogged", keepLogged);
@@ -40,10 +42,9 @@ export const getSavedLoginInformations = () => {
 	const encryptedToken = storage.getItem("token");
 	const secret = cookies.get("sId");
 	if (!encryptedToken || !secret) return false;
-	const tokenArray = encryptedToken.split(".");
-	tokenArray.pop();
-	tokenArray.shift();
-	const token = tokenArray.join().replaceAll(",", ".");
+	const reversedSecret = secret.split("").reverse().join("");
+	const bytes = CryptoJS.AES.decrypt(encryptedToken, reversedSecret);
+	const token = bytes.toString(CryptoJS.enc.Utf8);
 	return token;
 };
 export const clearLoginInformations = () => {

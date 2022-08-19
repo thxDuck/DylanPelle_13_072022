@@ -45,8 +45,6 @@ export const getToken = async (email, password) => {
 };
 
 const getAuthenticateHeaders = (token) => {
-	console.info("getAuthenticateHeaders => ", token);
-	console.log({ token });
 	return {
 		authorization: `Bearer ${token}`,
 	};
@@ -78,8 +76,8 @@ export const updateUserName = async (token, firstName, lastName) => {
 		body: JSON.stringify(data),
 	};
 	try {
-		// const apiResponse = await postAPI(REQUESTS_URLS.update, options);
-		const apiResponse = { status: 200 };
+		const apiResponse = await postAPI(REQUESTS_URLS.update, options);
+		// const apiResponse = { status: 200 };
 		console.log("UPDATE USER NAME => ", { apiResponse });
 		if (apiResponse.status === 200) {
 			return { ...SUCCESS };
