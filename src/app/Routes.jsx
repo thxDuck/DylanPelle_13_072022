@@ -4,7 +4,7 @@ import Login from "../pages/Login.jsx";
 import Profile from "../pages/Profile.jsx";
 import Error from "../pages/Error.jsx";
 
-function RoutesApp() {
+const RoutesApp = () => {
     return (
         <Routes>
             <Route path="/" element={<Home />} />

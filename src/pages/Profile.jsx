@@ -1,40 +1,51 @@
-import React from 'react'
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 import HeaderProfile from "../components/profile/HeaderProfile.jsx";
 import AccountResume from "../components/profile/AccountResume.jsx";
-
-const mockedAccounts = [
-    {
-        "id": 1,
-        "title": "Argent Bank Checking (x8349)",
-        "amount": "$2,082.79",
-        "amountDescription": "Available Balance"
-    },
-    {
-        "id": 2,
-        "title": "Argent Bank Savings (x6712)",
-        "amount": "$10,928.42",
-        "amountDescription": "Available Balance"
-    },
-    {
-        "id": 3,
-        "title": "Argent Bank Credit Card (x8349)",
-        "amount": "$184.30",
-        "amountDescription": "Current Balance"
-    },
-]
+import Loader from "../components/partials/Loader.jsx";
+import * as accountActions from "../features/account";
+import { selectAccountsData, selectAccountStatus, selectUserStatus } from "../utils/selectors";
 
 const Profile = () => {
-    return (
-        <main className="main bg-dark">
-            <HeaderProfile />
-            <h2 className="sr-only">Accounts</h2>
-            {mockedAccounts.map(acc => {
-                return <AccountResume key={acc.id} title={acc.title}
-                    amount={acc.amount}
-                    amountDescription={acc.amountDescription} />
-            })}
-        </main>
-    )
-}
+	const dispatch = useDispatch();
+	const accountStatus = useSelector(selectAccountStatus);
+	const userAccounts = useSelector(selectAccountsData); //get user state
+	const userStatus = useSelector(selectUserStatus); //get user state
 
-export default Profile
+	useEffect(() => {
+		dispatch(accountActions.fetchUserAccounts());
+	}, [dispatch]);
+
+	return userStatus !== "rejected" ? (
+		<main className="main bg-dark">
+			<HeaderProfile />
+			<h2 className="sr-only">Accounts</h2>
+			{accountStatus !== "rejected" && accountStatus !== "resolved" ? (
+				<Loader color="#fff" />
+			) : (
+				""
+			)}
+			{userAccounts.map((acc) => {
+				return (
+					<AccountResume
+						key={acc.id}
+						title={acc.title}
+						amount={acc.amount}
+						amountDescription={acc.amountDescription}
+						mock={acc.mock}
+					/>
+				);
+			})}
+		</main>
+	) : (
+		<main className="main bg-dark">
+			<div className="unauthorized">
+				<p>You are not authenticated !</p>
+				<Link to="/login">Sign In</Link>
+			</div>
+		</main>
+	);
+};
+
+export default Profile;
