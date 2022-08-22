@@ -1,0 +1,213 @@
+swagger: "2.0"
+info:
+  title: Bank Argent API documentation for accounts and transaction
+  description: Contains API endpoints for user accounts and transactions
+  version: 1.1.0
+  termsOfService: http://swagger.io/terms/
+host: localhost:3001
+basePath: /api/v1-5
+schemes:
+  - http
+paths:
+  /account:
+    post:
+      security:
+        - Bearer: []
+      tags:
+        - Transaction Module
+      summary: Transaction API
+      description: API for fetching transactions by month
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: ID of account and user, and month selected
+          required: true
+          schema:
+            $ref: "#/definitions/GetMonthlyAccount"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Account retrieved successully
+          schema:
+            $ref: "#/definitions/MonthlyTransactionResponse"
+        "400":
+          description: Invalid Fields
+        "500":
+          description: Internal Server Error
+  /account/transaction:
+    post:
+      security:
+        - Bearer: []
+      tags:
+        - Transaction Module
+      summary: Transaction API
+      description: API for fetching a transaction
+      parameters:
+        - in: header
+          name: Authorization
+          description: Attach Bearer JWT token
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: ID of transaction and account that needs to be fetched
+          required: true
+          schema:
+            $ref: "#/definitions/GetTransactions"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Transactions retrieved successully
+          schema:
+            $ref: "#/definitions/TransactionObject"
+        "400":
+          description: Invalid Fields
+        "500":
+          description: Internal Server Error
+    put:
+      security:
+        - Bearer: []
+      tags:
+        - Transaction Module
+      summary: Update transaction
+      description: API for updating a transaction
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          description: Attach Bearer JWT token
+          required: true
+        - in: body
+          name: body
+          description: Update transaction attributes
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateTransaction"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Transaction update successully
+          schema:
+            $ref: "#/definitions/UpdateTransaction"
+        "400":
+          description: Invalid Fields
+        "500":
+          description: Internal Server Error
+    delete:
+      security:
+        - Bearer: []
+      tags:
+        - Transaction Module
+      summary: Delete transaction
+      description: API for delete a transaction information
+      parameters:
+        - in: header
+          name: Authorization
+          type: string
+          description: Attach Bearer JWT token
+          required: true
+        - in: body
+          name: body
+          description: Delete transaction attributes
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateTransaction"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Information deleted successully
+          schema:
+            $ref: "#/definitions/UpdateTransaction"
+        "400":
+          description: Invalid Fields
+        "500":
+          description: Internal Server Error
+
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+definitions:
+  GetMonthlyAccount:
+    properties:
+      userId:
+        type: string
+        description: User identifier
+      accountId:
+        type: string
+        description: User identifier
+      month:
+        type: integer
+        description: Month selected (1-12)
+  MonthlyTransactionResponse:
+    properties:
+      amount: 
+        type: number
+        description: Current amount of account
+      id: 
+        type: string
+        description: Id of account
+      ownerId:
+        type: string
+        description: Owner of account
+      transactions: 
+        type: array
+        $ref: "#/definitions/TransactionObject"
+  TransactionObject: 
+    properties: 
+      id:
+        type: string
+        description: Account identifier
+      name:
+        type: string
+        description: Name of account (credit card, Savings...)
+      currency:
+        type: string
+        description: Default currency of account
+      amount:
+        type: number
+        description: Current amount
+      ownerId:
+        type: string
+        description: Owner id (user.id)
+      contractId:
+        type: string
+        description: Contract identifier
+  GetTransactions:
+    properties:
+      accountId:
+        type: string
+        description: User
+      transactionId:
+        type: string
+        description: Identifier of transaction  
+  UpdateTransaction:
+    properties:
+      description:
+        type: string
+        description: Name of transaction (ex Johnson Bakery)
+      category:
+        type: string
+        description: Category of transaction
+  TransactionPutResponse:
+    type: object
+    properties:
+      status:
+        type: integer
+      message:
+        type: string
+      body:
+        type: object
+        properties:
+          transactionId:
+            type: string
