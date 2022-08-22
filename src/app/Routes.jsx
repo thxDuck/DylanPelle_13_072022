@@ -12,7 +12,7 @@ const RoutesApp = () => {
     return (
         <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/api-doc" element={<SwaggerUI url="./swagger.yaml" />} />
+            <Route path="/api-docs" element={<SwaggerUI url="./swagger.yaml" />} />
             <Route path="/login" element={<Login />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<Error />} />
