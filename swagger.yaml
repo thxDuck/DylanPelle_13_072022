@@ -1,65 +1,74 @@
 swagger: "2.0"
 info:
-  title: Bank Argent API documentation for accounts and transaction
-  description: Contains API endpoints for user accounts and transactions
-  version: 1.1.0
-  termsOfService: http://swagger.io/terms/
+  title: Bank Argent API documentation
+  description: Contains all available API endpoints in this codebase
+  version: "1.0.0"
+  termsOfService: "http://swagger.io/terms/"
 host: localhost:3001
-basePath: /api/v1-5
+basePath: /api/v1
 schemes:
   - http
 paths:
-  /account:
-    post:
+  /account/transactions/{accountId}:
+    get:
       security:
         - Bearer: []
       tags:
         - Transaction Module
-      summary: Transaction API
-      description: API for fetching transactions by month
+      summary: Get last transactions
+      description: API for fetching transactions of last month
       parameters:
-        - in: header
-          name: Authorization
+        - name: Authorization
+          in: header
           description: Attach Bearer JWT token
           required: true
           type: string
-        - in: body
-          name: body
-          description: ID of account and user, and month selected
+        - name: accountId
+          in: path
+          description: ID of account that needs to be fetched
           required: true
-          schema:
-            $ref: "#/definitions/GetMonthlyAccount"
+          type: string
+        - name: monthSelected
+          in: query
+          description: Number of the chosen month
+          required: false
+          type: integer
+          enum:
+            - 1 => 12
       produces:
         - application/json
       responses:
         "200":
-          description: Account retrieved successully
+          description: Account with transactions retrieved successully
           schema:
-            $ref: "#/definitions/MonthlyTransactionResponse"
+            $ref: "#/definitions/AccountTransactions"
+        "401":
+          description: Unauthorized
         "400":
           description: Invalid Fields
+        "404":
+          description: Account not found
         "500":
           description: Internal Server Error
-  /account/transaction:
-    post:
+  /account/transaction/{transactionId}:
+    get:
       security:
         - Bearer: []
       tags:
         - Transaction Module
-      summary: Transaction API
+      summary: Transaction informations
       description: API for fetching a transaction
       parameters:
-        - in: header
-          name: Authorization
+        - name: Authorization
+          in: header
           description: Attach Bearer JWT token
           required: true
           type: string
-        - in: body
-          name: body
-          description: ID of transaction and account that needs to be fetched
+        - name: transactionId
+          in: path
+          description: ID of transaction that needs to be fetched
           required: true
-          schema:
-            $ref: "#/definitions/GetTransactions"
+          type: string
       produces:
         - application/json
       responses:
@@ -69,34 +78,47 @@ paths:
             $ref: "#/definitions/TransactionObject"
         "400":
           description: Invalid Fields
+        "401":
+          description: Unauthorized
+        "404":
+          description: Transaction not found
         "500":
           description: Internal Server Error
-    put:
+    patch:
       security:
         - Bearer: []
       tags:
         - Transaction Module
-      summary: Update transaction
-      description: API for updating a transaction
+      summary: Update transaction information
+      description: API for updating informations in a transaction
       parameters:
-        - in: header
-          name: Authorization
-          type: string
+        - name: Authorization
+          in: header
           description: Attach Bearer JWT token
           required: true
+          type: string
+        - name: transactionId
+          in: path
+          description: ID of transaction to update
+          required: true
+          type: string
         - in: body
           name: body
-          description: Update transaction attributes
           required: true
+          description: Transaction update payload
           schema:
-            $ref: "#/definitions/UpdateTransaction"
+            $ref: "#/definitions/TransactionInformations"
       produces:
         - application/json
       responses:
         "200":
-          description: Transaction update successully
+          description: Information of transaction updated successully
           schema:
-            $ref: "#/definitions/UpdateTransaction"
+            $ref: "#/definitions/TransactionInformations"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Transaction not found
         "400":
           description: Invalid Fields
         "500":
@@ -106,108 +128,94 @@ paths:
         - Bearer: []
       tags:
         - Transaction Module
-      summary: Delete transaction
+      summary: Delete transaction information
       description: API for delete a transaction information
       parameters:
-        - in: header
-          name: Authorization
-          type: string
+        - name: Authorization
+          in: header
           description: Attach Bearer JWT token
           required: true
+          type: string
+        - name: transactionId
+          in: path
+          description: ID of transaction to update
+          required: true
+          type: string
         - in: body
           name: body
-          description: Delete transaction attributes
           required: true
+          description: Delete transaction payload
           schema:
-            $ref: "#/definitions/UpdateTransaction"
+            $ref: "#/definitions/DeleteTransaction"
       produces:
         - application/json
       responses:
         "200":
           description: Information deleted successully
           schema:
-            $ref: "#/definitions/UpdateTransaction"
+            $ref: "#/definitions/TransactionInformations"
         "400":
           description: Invalid Fields
+        "401":
+          description: Unauthorized
+        "404":
+          description: Transaction not found
         "500":
           description: Internal Server Error
-
 securityDefinitions:
   Bearer:
     type: apiKey
     name: Authorization
     in: header
 definitions:
-  GetMonthlyAccount:
+  AccountTransactions:
     properties:
-      userId:
-        type: string
-        description: User identifier
-      accountId:
-        type: string
-        description: User identifier
-      month:
-        type: integer
-        description: Month selected (1-12)
-  MonthlyTransactionResponse:
-    properties:
-      amount: 
-        type: number
-        description: Current amount of account
-      id: 
+      id:
         type: string
         description: Id of account
       ownerId:
         type: string
         description: Owner of account
-      transactions: 
-        type: array
-        $ref: "#/definitions/TransactionObject"
-  TransactionObject: 
-    properties: 
+      amount:
+        type: number
+        description: Current amount of account
+      currency:
+        type: string
+        description: Currency of account
+      transactions:
+          type: array
+          items:
+            $ref: '#/definitions/TransactionObject'
+  TransactionObject:
+    properties:
       id:
         type: string
         description: Account identifier
-      name:
+      description:
         type: string
-        description: Name of account (credit card, Savings...)
-      currency:
+        description: Name of transaction (ex John Bakery, NetFlix...)
+      category:
         type: string
-        description: Default currency of account
+        description: Category of transaction (ex Food, Health, Work...)
       amount:
         type: number
-        description: Current amount
-      ownerId:
+        description: Amount
+      recipient:
         type: string
-        description: Owner id (user.id)
-      contractId:
-        type: string
-        description: Contract identifier
-  GetTransactions:
-    properties:
-      accountId:
-        type: string
-        description: User
-      transactionId:
-        type: string
-        description: Identifier of transaction  
-  UpdateTransaction:
+        description: Recipient of the transaction
+  TransactionInformations:
     properties:
       description:
         type: string
-        description: Name of transaction (ex Johnson Bakery)
+        description: Description of transaction (ex Johnson Bakery meal)
       category:
         type: string
         description: Category of transaction
-  TransactionPutResponse:
-    type: object
+  DeleteTransaction:
     properties:
-      status:
-        type: integer
-      message:
-        type: string
-      body:
-        type: object
-        properties:
-          transactionId:
-            type: string
+      description:
+        type: boolean
+        description: if true, empty the description
+      category:
+        type: boolean
+        description: if true, empty the category
