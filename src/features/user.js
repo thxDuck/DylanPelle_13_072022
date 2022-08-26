@@ -34,11 +34,6 @@ const getProfile = async (dispatch, actions, token) => {
 	}
 };
 
-// export const setAccountIds = (accountIds) => {
-// 	return (dispatch, getState) => {
-// 		dispatch(actions.setAccountIds(accountIds));
-// 	};
-// };
 export const setMode = (mode) => {
 	return (dispatch, getState) => {
 		dispatch(actions.setMode(mode));
