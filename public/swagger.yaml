@@ -119,7 +119,7 @@ paths:
       tags:
         - Transaction Module
       summary: Get last transactions
-      description: API for fetching transactions of last month
+      description: API for fetching transactions of current month
       parameters:
         - name: Authorization
           in: header
@@ -131,13 +131,13 @@ paths:
           description: ID of account that needs to be fetched
           required: true
           type: string
-        - name: monthSelected
+        - name: month
           in: query
-          description: Number of the chosen month
+          type: string
+          description: Selecting the month for transaction retrieval
           required: false
-          type: integer
           enum:
-            - 1 => 12
+            - last_month
       produces:
         - application/json
       responses:
